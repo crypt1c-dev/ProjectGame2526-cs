@@ -36,7 +36,7 @@ public class Game
     protected int uiXOffset = 3;
     protected int uiYOffset = 5;
     protected int score = 0;
-    protected string playerName = "Player";
+    protected string playerName;
 
     protected double timeSinceHit = 10000000;
     const double hitInvincibleTime = 0.5;
@@ -430,6 +430,8 @@ public class Game
     {
         List<Highscores> highscoresList =
             highscoresScreen.LoadHighScores();
+
+        playerName = highscoreSaveScreen.GetPlayerName();
 
         highscoresList.Add(
             new Highscores(score, playerName)

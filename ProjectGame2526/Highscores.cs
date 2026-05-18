@@ -31,8 +31,31 @@ public class Highscores
 
     public static void SaveHighScore(Highscores newHighscore)
     {
-        string highscoreAsText = $"{newHighscore.PlayerName}:{newHighscore.Score}";
-        File.AppendAllText("highscores.txt", highscoreAsText + Environment.NewLine);
+        string highscoreAsText =
+    $"{newHighscore.PlayerName}:{newHighscore.Score}";
+
+        StreamWriter writer = null;
+
+        try
+        {
+            writer = new StreamWriter("highscores.txt", true); // True = append to file instead of overwriting
+
+            writer.WriteLine(highscoreAsText);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(
+                "Error while saving highscore: {0}",
+                e.Message
+            );
+        }
+        finally
+        {
+            if (writer != null)
+            {
+                writer.Close();
+            }
+        }
     }
 
 }
