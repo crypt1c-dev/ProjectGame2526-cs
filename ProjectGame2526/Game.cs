@@ -12,6 +12,7 @@ public enum GameState
     StartingScreen,
     MainMenu,
     HighscoresMenu,
+    HighscoreSaveMenu,
     GameRunning,
     GamePaused,
     GameOver,
@@ -79,6 +80,7 @@ public class Game
     protected ExitGameMenuItem ExitGameMenuItem;
     protected HighscoresMenuItem highscoresMenuItem;
     protected HighscoresScreen highscoresScreen;
+    protected HighscoreSaveScreen highscoreSaveScreen;
 
     /* ---------------------------------------------------------*/
 
