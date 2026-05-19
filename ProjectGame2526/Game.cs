@@ -36,7 +36,7 @@ public class Game
     protected int uiXOffset = 3;
     protected int uiYOffset = 5;
     protected int score = 0;
-    protected string playerName = "Player";
+    protected string playerName;
 
     protected double timeSinceHit = 10000000;
     const double hitInvincibleTime = 0.5;
@@ -64,7 +64,7 @@ public class Game
     protected List<Highscores> highscoresList = new List<Highscores>();
 
     protected UI gameUI;
-    protected UIElement uiLives, uiTime, uiLevel;
+    protected UIElement uiLives, uiTime, uiScore, uiLevel;
 
     /**
  *      __  __                  
@@ -141,14 +141,17 @@ public class Game
         gameUI.AddUIElement(uiLives);
         uiTime = new UIElement("Time", 0, 15, 1);
         gameUI.AddUIElement(uiTime);
+        uiScore = new UIElement("Score", score, 25, 1);
+        gameUI.AddUIElement(uiScore);
 
-        uiLevel = new UIElement("Level", level.LevelNumber, 30, 1);
+        uiLevel = new UIElement("Level", level.LevelNumber, 40, 1);
         gameUI.AddUIElement(uiLevel);
         //---- SCREENS ----
         startingScreen = new Screen("StartingScreen.txt", ConsoleColor.Blue, ConsoleColor.Black);
         gameOverScreen = new Screen("GameOverScreen.txt", ConsoleColor.Red, ConsoleColor.Black);
         mainMenu = new Menu("MainMenu.txt", ConsoleColor.Cyan, ConsoleColor.Black, ConsoleColor.Black, ConsoleColor.White);
         highscoresScreen = new HighscoresScreen();
+        highscoreSaveScreen = new HighscoreSaveScreen();
         startGameMenuItem = new StartGameMenuItem();
         highscoresMenuItem = new HighscoresMenuItem();
         ExitGameMenuItem = new ExitGameMenuItem();
@@ -203,6 +206,15 @@ public class Game
                 }
                 highscoresScreen.Draw(highscoresList);
                 break;
+            case GameState.HighscoreSaveMenu:
+                if (currentGameState != previousGameState)
+                {
+                    FullScreenReset();
+                    highscoreSaveScreen.Draw(this);
+                    highscoreSaveScreen.GetPlayerName();
+                    UpdateHighscore();
+                }
+                break;
             case GameState.GameRunning:
                 level.Draw(uiXOffset, uiYOffset);
                 player.Draw(uiXOffset, uiYOffset);
@@ -226,7 +238,6 @@ public class Game
                 {
                     FullScreenReset();
                     gameOverScreen.Draw();
-                    UpdateHighscore();
                     player.Lives = player.DefaultPlayerLives;
                 }
                 break;
@@ -299,9 +310,16 @@ public class Game
                     currentGameState = GameState.MainMenu;
                 }
                 highscoresScreen.OnInput(key, highscoresList);
-                if(key == ConsoleKey.UpArrow || key == ConsoleKey.DownArrow)
+                if (key == ConsoleKey.UpArrow || key == ConsoleKey.DownArrow)
                 {
                     FullScreenReset();
+                }
+                break;
+            case GameState.HighscoreSaveMenu:
+                if (key == ConsoleKey.Spacebar && highscoreSaveScreen.exitEnabled)
+                {
+                    FullScreenReset();
+                    currentGameState = GameState.MainMenu;
                 }
                 break;
             case GameState.GameRunning:
@@ -326,7 +344,7 @@ public class Game
                 if (key == ConsoleKey.Spacebar)
                 {
                     FullScreenReset();
-                    currentGameState = GameState.MainMenu;
+                    currentGameState = GameState.HighscoreSaveMenu;
                 }
                 break;
         }
@@ -349,6 +367,7 @@ public class Game
                 stopwatch.Start();
                 gameUI.UpdateUIElementValue("Time", (int)stopwatch.ElapsedMilliseconds / 1000);
                 gameUI.UpdateUIElementValue("Lives", player.Lives);
+                gameUI.UpdateUIElementValue("Score", score);
 
                 checkStopwatch();
                 break;
@@ -387,6 +406,7 @@ public class Game
         {
             player.IsInvincible = true;
             player.GoInvincible();
+            score += 20;
         }
         else if (type == PowerupType.JumpBoost)
         {
@@ -395,10 +415,13 @@ public class Game
         else if (type == PowerupType.MedKit)
         {
             player.Lives++;
+            score += 10;
         }
         else if (type == PowerupType.Bomb)
         {
             // Implement bomb effect
+
+            score += 80;
         }
     }
 
@@ -409,6 +432,7 @@ public class Game
         if (stopwatch.ElapsedMilliseconds >= 10000)
         {
             level.currentLevel++;
+            score += 100;
             stopwatch.Stop();
             gameUI.UpdateUIElementValue("Time", 0);
             gameUI.UpdateUIElementValue("Level", level.currentLevel);
@@ -428,12 +452,38 @@ public class Game
 
     public void UpdateHighscore()
     {
+        Highscores existingHighscore = null;
         List<Highscores> highscoresList =
             highscoresScreen.LoadHighScores();
 
-        highscoresList.Add(
-            new Highscores(score, playerName)
-        );
+        playerName = highscoreSaveScreen.GetPlayerName();
+
+        playerName = playerName.Trim();
+
+        // zoek of de naam al bestaat
+        foreach (Highscores highscore in highscoresList)
+        {
+            if (highscore.PlayerName.Trim() == playerName)
+            {
+                existingHighscore = highscore;
+            }
+        }
+
+        // als de naam nog niet bestaat
+        if (existingHighscore == null)
+        {
+            highscoresList.Add(
+                new Highscores(score, playerName, level.currentLevel)
+            );
+        }
+        else
+        {
+            if (highscoreSaveScreen.overwriteExistingScore)
+            {
+                existingHighscore.Score = score;
+                existingHighscore.LevelNum = level.currentLevel;
+            }
+        }
 
         highscoresScreen.SaveHighScores(highscoresList);
     }

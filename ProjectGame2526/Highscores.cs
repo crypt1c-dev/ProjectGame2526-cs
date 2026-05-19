@@ -6,6 +6,7 @@ public class Highscores
 {
     protected int score;
     protected string playerName;
+    protected int levelNum;
 
     public int Score
     {
@@ -17,22 +18,51 @@ public class Highscores
         get { return playerName; }
         set { playerName = value; }
     }
+    public int LevelNum
+    {
+        get { return levelNum; }
+        set { levelNum = value; }
+    }
 
     public Highscores()
     {
 
     }
 
-    public Highscores(int newScore, string newPlayerName)
+    public Highscores(int newScore, string newPlayerName, int newLevelNum)
     {
         Score = newScore;
         PlayerName = newPlayerName;
+        LevelNum = newLevelNum;  
     }
 
     public static void SaveHighScore(Highscores newHighscore)
     {
-        string highscoreAsText = $"{newHighscore.PlayerName}:{newHighscore.Score}";
-        File.AppendAllText("highscores.txt", highscoreAsText + Environment.NewLine);
+        string highscoreAsText =
+    $"{newHighscore.PlayerName}:{newHighscore.Score}:{newHighscore.LevelNum}";
+
+        StreamWriter writer = null;
+
+        try
+        {
+            writer = new StreamWriter("highscores.txt", true); // True = append to file instead of overwriting
+
+            writer.WriteLine(highscoreAsText);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(
+                "Error while saving highscore: {0}",
+                e.Message
+            );
+        }
+        finally
+        {
+            if (writer != null)
+            {
+                writer.Close();
+            }
+        }
     }
 
 }

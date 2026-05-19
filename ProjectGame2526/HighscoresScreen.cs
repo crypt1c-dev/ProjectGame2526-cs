@@ -7,7 +7,7 @@ namespace ProjectGame2526;
 public class HighscoresScreen : Screen
 {
     int scrollOffset = 0;
-    public HighscoresScreen() : base("HighscoresMenu.txt", ConsoleColor.White, ConsoleColor.Black)
+    public HighscoresScreen() : base("HighscoresMenu.txt", ConsoleColor.Green, ConsoleColor.Black)
     {
 
     }
@@ -101,7 +101,7 @@ public class HighscoresScreen : Screen
         int startY = 16;
 
         // hoeveel highscores zichtbaar zijn
-        int visibleScores = 3;
+        int visibleScores = 2;
 
         for (int i = 0; i < visibleScores; i++)
         {
@@ -122,6 +122,9 @@ public class HighscoresScreen : Screen
 
             Console.SetCursorPosition(5, yPosition + 1);
             Console.Write($"Score: {highscore.Score}");
+
+            Console.SetCursorPosition(5, yPosition + 2);
+            Console.Write($"Behaald level: {highscore.LevelNum}");
         }
     }
 
