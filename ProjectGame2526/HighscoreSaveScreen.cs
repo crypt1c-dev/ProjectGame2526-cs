@@ -7,6 +7,7 @@ public class HighscoreSaveScreen : Screen
     protected string playerName;
     public bool overwriteExistingScore = false;
     public bool exitEnabled = false;
+    public bool wantsToExit = false;
     public HighscoreSaveScreen() : base("HighscoresSaveMenu.txt", ConsoleColor.White, ConsoleColor.Black)
     {
     }
@@ -23,12 +24,20 @@ public class HighscoreSaveScreen : Screen
     {
         bool validInput = false;
         bool isFirstInput = true;
+
         do
         {
             if (isFirstInput)
             {
-                Console.Write("Enter your name to save your score: ");
+                Console.Write("Enter your name to save your score (or type EXIT to return to the main menu): ");
                 playerName = Console.ReadLine();
+
+                if (playerName.ToUpper() == "EXIT")
+                {
+                    game.CurrentGameState = GameState.MainMenu;
+                    wantsToExit = true;
+                    break;
+                }
 
                 isFirstInput = false;
             }
@@ -36,8 +45,15 @@ public class HighscoreSaveScreen : Screen
             {
                 if (playerName == null || playerName.Trim() == "")
                 {
-                    Console.Write("Name cannot be empty. Please enter a valid name: ");
+                    Console.Write("Name cannot be empty. Please enter a valid name (or type EXIT to return to the main menu): ");
                     playerName = Console.ReadLine();
+
+                    if (playerName.ToUpper() == "EXIT")
+                    {
+                        validInput = true;
+                        game.CurrentGameState = GameState.MainMenu;
+                        wantsToExit = true;
+                    }
                 }
                 else
                 {
@@ -47,6 +63,14 @@ public class HighscoreSaveScreen : Screen
         }
         while (!validInput);
 
+        if (!wantsToExit)
+        {
+            HandleOverwriteAndSave(game);
+        }
+    }
+
+    public void HandleOverwriteAndSave(Game game)
+    {
         StreamReader reader = new StreamReader("Highscores.json");
         string highscoresAsText;
         highscoresAsText = reader.ReadToEnd();

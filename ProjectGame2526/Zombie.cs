@@ -49,6 +49,7 @@ public class Zombie : Entity
         isFollowingPlayer = false;
         survivesBomb = false;
     }
+
     public override void Draw(int uiXOffset, int uiYOffset)
     {
         ConsoleColor originalColor = Console.ForegroundColor;
@@ -72,7 +73,7 @@ public class Zombie : Entity
         base.Update(dt);
 
         //after move check
-        if (gameLevel.GetElementTypeAt(CursorY, CursorX) == LevelElementType.Wall)
+        if (gameLevel.GetElementTypeAt(CursorY, CursorX) == LevelElementType.Wall || gameLevel.GetElementTypeAt(CursorY, CursorX) == LevelElementType.BreakableWall)
         {
             //reset position to before update
             xPos = previousPositionX;
@@ -81,5 +82,10 @@ public class Zombie : Entity
             xSpeed = -xSpeed;
             ySpeed = -ySpeed;
         }
+    }
+
+        public void SetLevel(Level newLevel)
+    {
+        gameLevel = newLevel;
     }
 }

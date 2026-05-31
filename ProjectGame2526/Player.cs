@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Reflection.PortableExecutable;
 using System.Security.Cryptography.X509Certificates;
 
@@ -11,10 +12,12 @@ public class Player : Entity
     public bool dead = false;
     protected ConsoleColor color = ConsoleColor.Red;
     protected Level gameLevel;
+
     protected int defaultPlayerLives = 3;
     int x, y;
     private int width;
     private int height;
+    protected Stopwatch time;
     public bool IsInvincible
     {
         get { return isInvincible; }
@@ -52,6 +55,8 @@ public class Player : Entity
         width = gameWidth;
         height = gameHeight;
 
+        time = new Stopwatch();
+
     }
 
     public override void Draw(int xOffset, int yOffset)
@@ -66,6 +71,11 @@ public class Player : Entity
     public void DoDamage(int damage, Game game)
     {
         lives -= damage;
+        CheckDeath(game);
+
+    }
+    public void CheckDeath(Game game)
+    {
         if (lives <= 0)
         {
             lives = 0;
@@ -73,10 +83,13 @@ public class Player : Entity
         }
     }
 
-    public override void Move(double distanceToMoveX, double distanceToMoveY, int screenWidth, int screenHeight)
+    public override void Move(double distanceToMoveX, double distanceToMoveY,
+    int screenWidth, int screenHeight)
     {
         xPos += distanceToMoveX;
         yPos += distanceToMoveY;
+
+        // screen borders
         if (xPos <= 0)
         {
             xPos = 1;
@@ -85,6 +98,7 @@ public class Player : Entity
         {
             xPos = screenWidth - 2;
         }
+
         if (yPos <= 0)
         {
             yPos = 1;
@@ -93,7 +107,19 @@ public class Player : Entity
         {
             yPos = screenHeight - 2;
         }
-        else if (gameLevel.GetElementTypeAt(Convert.ToInt32(yPos), Convert.ToInt32(xPos)) == LevelElementType.Wall)
+
+        // wall collision
+        // debug
+        Console.SetCursorPosition(0, 25);
+
+        Console.Write(
+            gameLevel.GetElementTypeAt((int)yPos, (int)xPos)
+        );
+
+        // collision
+        if (gameLevel.GetElementTypeAt((int)yPos, (int)xPos)
+            == LevelElementType.Wall && !isInvincible || gameLevel.GetElementTypeAt((int)yPos, (int)xPos)
+            == LevelElementType.BreakableWall && !isInvincible)
         {
             xPos -= distanceToMoveX;
             yPos -= distanceToMoveY;
@@ -104,7 +130,7 @@ public class Player : Entity
     {
         if (isInvincible)
         {
-            color = ConsoleColor.Blue;
+            UpdateInvincible();
         }
         else
         {
@@ -116,5 +142,26 @@ public class Player : Entity
     {
         xPos = 20;
         yPos = 10;
+    }
+    public void SetLevel(Level newLevel)
+    {
+        gameLevel = newLevel;
+    }
+
+    public void UpdateInvincible()
+    {
+        if (isInvincible)
+        {
+            time.Start();
+            if (time.ElapsedMilliseconds >= 10000)
+            {
+                isInvincible = false;
+                GoInvincible();
+            }
+            else if (time.ElapsedMilliseconds < 10000)
+            {
+                color = ConsoleColor.Blue;
+            }
+        }
     }
 }

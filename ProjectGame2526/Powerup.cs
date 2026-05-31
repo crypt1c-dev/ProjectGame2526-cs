@@ -6,7 +6,7 @@ public enum PowerupType
 {
     MedKit,
     Invincibility,
-    JumpBoost,
+    Coin,
     Bomb
 }
 
@@ -26,8 +26,8 @@ public class Powerup : Sprite
             case PowerupType.Invincibility:
                 symbol = 'I';
                 break;
-            case PowerupType.JumpBoost:
-                symbol = 'J';
+            case PowerupType.Coin:
+                symbol = 'O';
                 break;
             case PowerupType.MedKit:
                 symbol = '+';

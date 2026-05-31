@@ -86,7 +86,7 @@ public class HighscoresScreen : Screen
         // INFO TEXT (vaste UI, dus NIET in de loop)
         Console.ForegroundColor = ConsoleColor.Yellow;
         Console.SetCursorPosition(45, 16);
-        Console.Write("Scroll up/down");
+        Console.Write("Click up/down-arrow");
 
         Console.SetCursorPosition(45, 17);
         Console.Write("to see more");
