@@ -8,6 +8,7 @@ public class Highscores
     protected string playerName;
     protected int levelNum;
 
+
     public int Score
     {
         get { return score; }

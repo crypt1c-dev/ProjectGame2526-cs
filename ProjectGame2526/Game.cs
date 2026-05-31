@@ -11,10 +11,10 @@ public enum GameState
 {
     StartingScreen,
     MainMenu,
+    Rules,
     HighscoresMenu,
     HighscoreSaveMenu,
     GameRunning,
-    GamePaused,
     GameOver,
     GameWon,
     NoGameState,
@@ -29,7 +29,7 @@ public class Game
  *       \ V / ___ \|  _ < 
  *        \_/_/   \_\_| \_\            
  */
-    protected bool GameFirstStart = true;
+    protected bool gameFirstStart = true;
     protected int width, height;
     protected int playerPosX = 5, playerPosY = 5;
     protected double refreshRate;
@@ -62,9 +62,10 @@ public class Game
     protected List<Zombie> zombies = new List<Zombie>();
     protected List<Powerup> powerupSpawns = new List<Powerup>();
     protected List<Highscores> highscoresList = new List<Highscores>();
+    protected List<string> rulesList = new List<string>();
 
     protected UI gameUI;
-    protected UIElement uiLives, uiTime, uiScore, uiLevel;
+    protected UIElement uiLives, uiTime, uiScore, uiLevel, uiExit;
 
     /**
  *      __  __                  
@@ -74,11 +75,14 @@ public class Game
  *     |_|  |_|\___|_| |_|\__,_|                      
  */
     protected Screen startingScreen;
+    protected Screen gameWonScreen;
     protected Screen gameOverScreen;
     protected Menu mainMenu;
     protected StartGameMenuItem startGameMenuItem;
-    protected ExitGameMenuItem ExitGameMenuItem;
+    protected ExitGameMenuItem exitGameMenuItem;
     protected HighscoresMenuItem highscoresMenuItem;
+    protected RulesMenuItem rulesMenuItem;
+    protected RulesScreen rulesScreen;
     protected HighscoresScreen highscoresScreen;
     protected HighscoreSaveScreen highscoreSaveScreen;
 
@@ -130,11 +134,12 @@ public class Game
             zombies.Add(zombieVertical);
         }
         // Power-ups
-        if (level.currentLevel >= 1 && level.currentLevel < 3)
+        if (level.currentLevel == 1)
         {
             Powerup medKit = new Powerup(PowerupType.MedKit, 5, 7, '+');
             powerupSpawns.Add(medKit);
         }
+        levelPropHandler();
         //---- UI ----
         gameUI = new UI();
         uiLives = new UIElement("Lives", player.Lives, 2, 1);
@@ -144,21 +149,28 @@ public class Game
         uiScore = new UIElement("Score", score, 25, 1);
         gameUI.AddUIElement(uiScore);
 
-        uiLevel = new UIElement("Level", level.LevelNumber, 40, 1);
+        uiLevel = new UIElement("Level", level.currentLevel, 40, 1);
         gameUI.AddUIElement(uiLevel);
+
+        uiExit = new UIElement("exit", 2, 2);
+        gameUI.AddUIElement(uiExit);
         //---- SCREENS ----
         startingScreen = new Screen("StartingScreen.txt", ConsoleColor.Blue, ConsoleColor.Black);
         gameOverScreen = new Screen("GameOverScreen.txt", ConsoleColor.Red, ConsoleColor.Black);
+        gameWonScreen = new Screen("GameWonScreen.txt", ConsoleColor.Green, ConsoleColor.Black);
         mainMenu = new Menu("MainMenu.txt", ConsoleColor.Cyan, ConsoleColor.Black, ConsoleColor.Black, ConsoleColor.White);
         highscoresScreen = new HighscoresScreen();
+        rulesScreen = new RulesScreen();
         highscoreSaveScreen = new HighscoreSaveScreen();
         startGameMenuItem = new StartGameMenuItem();
         highscoresMenuItem = new HighscoresMenuItem();
-        ExitGameMenuItem = new ExitGameMenuItem();
+        rulesMenuItem = new RulesMenuItem();
+        exitGameMenuItem = new ExitGameMenuItem();
         // ADDING TO LIST
         mainMenu.AddMenuItem(startGameMenuItem);
         mainMenu.AddMenuItem(highscoresMenuItem);
-        mainMenu.AddMenuItem(ExitGameMenuItem);
+        mainMenu.AddMenuItem(rulesMenuItem);
+        mainMenu.AddMenuItem(exitGameMenuItem);
         // STOPWATCH
         stopwatch = new Stopwatch();
     }
@@ -199,6 +211,9 @@ public class Game
                     mainMenu.Draw();
                 }
                 break;
+            case GameState.Rules:
+                rulesScreen.Draw(rulesList);
+                break;
             case GameState.HighscoresMenu:
                 if (currentGameState != previousGameState)
                 {
@@ -211,8 +226,18 @@ public class Game
                 {
                     FullScreenReset();
                     highscoreSaveScreen.Draw(this);
-                    highscoreSaveScreen.GetPlayerName();
-                    UpdateHighscore();
+                    if (!highscoreSaveScreen.wantsToExit)
+                    {
+                        highscoreSaveScreen.GetPlayerName();
+                        UpdateHighscore();
+                    }
+                    else
+                    {
+                        FullScreenReset();
+                        ResetGameStats();
+                        currentGameState = GameState.MainMenu;
+                        return;
+                    }
                 }
                 break;
             case GameState.GameRunning:
@@ -230,6 +255,16 @@ public class Game
                 }
 
                 gameUI.Draw();
+                break;
+            case GameState.GameWon:
+                stopwatch.Stop();
+                stopwatch.Reset();
+                if (currentGameState != previousGameState)
+                {
+                    FullScreenReset();
+                    gameWonScreen.Draw();
+                    player.Lives = player.DefaultPlayerLives;
+                }
                 break;
             case GameState.GameOver:
                 stopwatch.Stop();
@@ -320,6 +355,25 @@ public class Game
                 {
                     FullScreenReset();
                     currentGameState = GameState.MainMenu;
+                    ResetGameStats();
+                }
+                else if (highscoreSaveScreen.wantsToExit)
+                {
+                    FullScreenReset();
+                    currentGameState = GameState.MainMenu;
+                    ResetGameStats();
+                }
+                break;
+            case GameState.Rules:
+                if (key == ConsoleKey.Backspace)
+                {
+                    FullScreenReset();
+                    currentGameState = GameState.MainMenu;
+                }
+                rulesScreen.OnInput(key, rulesList);
+                if (key == ConsoleKey.UpArrow || key == ConsoleKey.DownArrow)
+                {
+                    FullScreenReset();
                 }
                 break;
             case GameState.GameRunning:
@@ -338,6 +392,29 @@ public class Game
                 else if (key == ConsoleKey.UpArrow)
                 {
                     player.Move(0, -1, width, height);
+                }
+                // check if the +=~ key is pressed
+                if (key == ConsoleKey.OemPlus)
+                {
+                    NextLevel();
+                }
+                if (key == ConsoleKey.End)
+                {
+                    player.Lives = 0;
+                    player.CheckDeath(this);
+                }
+                if (key == ConsoleKey.Escape)
+                {
+                    FullScreenReset();
+                    currentGameState = GameState.MainMenu;
+                    ResetGameStats();
+                }
+                break;
+            case GameState.GameWon:
+                if (key == ConsoleKey.Spacebar)
+                {
+                    FullScreenReset();
+                    currentGameState = GameState.HighscoreSaveMenu;
                 }
                 break;
             case GameState.GameOver:
@@ -370,6 +447,8 @@ public class Game
                 gameUI.UpdateUIElementValue("Score", score);
 
                 checkStopwatch();
+
+                player.UpdateInvincible();
                 break;
         }
     }
@@ -380,7 +459,7 @@ public class Game
         // check if colliding with an enemy
         foreach (Zombie zombie in zombies)
         {
-            if (zombie.CursorX == player.CursorX && zombie.CursorY == player.CursorY && timeSinceHit > hitInvincibleTime)
+            if (zombie.CursorX == player.CursorX && zombie.CursorY == player.CursorY && timeSinceHit > hitInvincibleTime && !player.IsInvincible)
             {
                 player.DoDamage(zombie.AttackDamage, this);
                 timeSinceHit = 0;
@@ -408,9 +487,11 @@ public class Game
             player.GoInvincible();
             score += 20;
         }
-        else if (type == PowerupType.JumpBoost)
+        else if (type == PowerupType.Coin)
         {
-            // Implement jump boost effect
+            Console.Beep(1000, 80);
+            Console.Beep(1333, 20);
+            score += 50;
         }
         else if (type == PowerupType.MedKit)
         {
@@ -419,8 +500,7 @@ public class Game
         }
         else if (type == PowerupType.Bomb)
         {
-            // Implement bomb effect
-
+            level.DestroyBreakableWalls((int)player.XPos, (int)player.YPos, 4);
             score += 80;
         }
     }
@@ -429,25 +509,127 @@ public class Game
     // CHECK STOPWATCH
     public void checkStopwatch()
     {
-        if (stopwatch.ElapsedMilliseconds >= 10000)
+        if (stopwatch.ElapsedMilliseconds >= 20000)
         {
-            level.currentLevel++;
-            score += 100;
-            stopwatch.Stop();
-            gameUI.UpdateUIElementValue("Time", 0);
-            gameUI.UpdateUIElementValue("Level", level.currentLevel);
-            stopwatch.Reset();
-            level = new Level(width, height, level.currentLevel, uiXOffset, uiYOffset);
-            level.Draw(uiXOffset, uiYOffset);
-            player.ResetPosition();
-            Draw(refreshRate);
-            // Add new zombies or power-ups for the next level
-            if (level.currentLevel == 2)
-            {
-                zombies.Add(new Zombie(10, 5, 'Z', 0, 1, 28, 0, width, height, level));
-                powerupSpawns.Add(new Powerup(PowerupType.Invincibility, 15, 10, 'I'));
-            }
+            NextLevel();
         }
+    }
+
+    public void NextLevel()
+    {
+        level.currentLevel++;
+
+        score += 100;
+
+        stopwatch.Stop();
+        stopwatch.Reset();
+
+        FullScreenReset();
+        Console.ForegroundColor = ConsoleColor.White;
+
+        if (level.currentLevel == 11)
+        {
+            currentGameState = GameState.GameWon;
+            return;
+        }
+
+        Console.WriteLine("Level Complete!");
+        Console.WriteLine("Loading level: " + level.currentLevel + "...");
+        Thread.Sleep(500);
+        FullScreenReset();
+        gameUI.Draw();
+        gameUI.UpdateUIElementValue("Time", 0);
+        gameUI.UpdateUIElementValue("Level", level.currentLevel);
+
+        level = new Level(width, height, level.currentLevel, uiXOffset, uiYOffset);
+
+        player.SetLevel(level);
+
+        level.Draw(uiXOffset, uiYOffset);
+
+        player.ResetPosition();
+        if (level.currentLevel == 9 || level.currentLevel == 10)
+        {
+            player.XPos = 21;
+            player.YPos = 11;
+        }
+        levelPropHandler();
+        Draw(refreshRate);
+    }
+
+    public void levelPropHandler()
+    {
+        Zombie z1 = new Zombie(10, 5, 'Z', 0, 1, 28, 0, width, height, level);
+        Zombie z2 = new Zombie(34, 5, 'Z', 0, 1, 14, 28, width, height, level);
+        Zombie tankMiddle = new Zombie(40, 9, 'T', 1, 2, 4, 0, width, height, level);
+        Zombie tankBottom = new Zombie(30, 17, 'T', 1, 2, 28, 0, width, height, level);
+        if (level.currentLevel == 1)
+        {
+            powerupSpawns.Add(new Powerup(PowerupType.Coin, 11, 11, 'O'));
+            powerupSpawns.Add(new Powerup(PowerupType.Coin, 39, 14, 'O'));
+        }
+
+        if (level.currentLevel == 2)
+        {
+            zombies.Add(z1);
+            powerupSpawns.Add(new Powerup(PowerupType.Invincibility, 15, 10, 'I'));
+            powerupSpawns.Add(new Powerup(PowerupType.Coin, 29, 16, 'O'));
+            powerupSpawns.Add(new Powerup(PowerupType.Coin, 40, 18, 'O'));
+            powerupSpawns.Add(new Powerup(PowerupType.Coin, 48, 3, 'O'));
+        }
+        else if (level.currentLevel == 3)
+        {
+            zombies.Add(z2);
+            powerupSpawns.Add(new Powerup(PowerupType.Coin, 10, 4, 'O'));
+        }
+        else if (level.currentLevel == 4)
+        {
+            zombies.Add(tankMiddle);
+            powerupSpawns.Add(new Powerup(PowerupType.Bomb, 41, 11, 'B'));
+            powerupSpawns.Add(new Powerup(PowerupType.Coin, 13, 2, 'O'));
+        }
+        else if (level.currentLevel == 5)
+        {
+            zombies.Add(tankBottom);
+            powerupSpawns.Add(new Powerup(PowerupType.Coin, 24, 11, 'O'));
+            powerupSpawns.Add(new Powerup(PowerupType.Coin, 13, 8, 'O'));
+            powerupSpawns.Add(new Powerup(PowerupType.Coin, 44, 2, 'O'));
+        }
+        else if (level.currentLevel == 6)
+        {
+            zombies.Remove(tankMiddle);
+            powerupSpawns.Add(new Powerup(PowerupType.Coin, 31, 17, 'O'));
+            powerupSpawns.Add(new Powerup(PowerupType.Coin, 7, 2, 'O'));
+            powerupSpawns.Add(new Powerup(PowerupType.Coin, 24, 3, 'O'));
+
+        }
+        else if (level.currentLevel == 8)
+        {
+            zombies.Remove(z1);
+            powerupSpawns.Add(new Powerup(PowerupType.Bomb, 32, 18, 'B'));
+            powerupSpawns.Add(new Powerup(PowerupType.Coin, 34, 16, 'O'));
+            powerupSpawns.Add(new Powerup(PowerupType.Coin, 13, 9, 'O'));
+        }
+        else if (level.currentLevel == 9)
+        {
+            zombies.Remove(z1);
+            powerupSpawns.Add(new Powerup(PowerupType.Coin, 13, 2, 'O'));
+            powerupSpawns.Add(new Powerup(PowerupType.Coin, 48, 16, 'O'));
+        }
+        else if (level.currentLevel == 10)
+        {
+            powerupSpawns.Add(new Powerup(PowerupType.Bomb, 24, 11, 'B'));
+            powerupSpawns.Add(new Powerup(PowerupType.Coin, 11, 13, 'O'));
+            powerupSpawns.Add(new Powerup(PowerupType.Coin, 48, 7, 'O'));
+        }
+        // Updates de level object for every zombie object to make sure the zombies 
+        // follow the same rules in every different level
+        foreach (Zombie zombie in zombies)
+        {
+            zombie.SetLevel(level);
+        }
+
+        level.CheckErrorPositions(powerupSpawns, zombies);
     }
 
     public void UpdateHighscore()
@@ -468,6 +650,10 @@ public class Game
                 existingHighscore = highscore;
             }
         }
+        if (level.currentLevel == 11)
+        {
+            level.currentLevel = 10;
+        }
 
         // als de naam nog niet bestaat
         if (existingHighscore == null)
@@ -486,5 +672,55 @@ public class Game
         }
 
         highscoresScreen.SaveHighScores(highscoresList);
+    }
+
+    public void ResetGameStats()
+    {
+        bool isResettingObjects = true;
+
+        player.Lives = player.DefaultPlayerLives;
+        level.SetCurrentLevel(1);
+        score = 0;
+
+        stopwatch.Stop();
+        stopwatch.Reset();
+
+        level = new Level(width, height, 1, uiXOffset, uiYOffset);
+        player.ResetPosition();
+
+        gameUI = new UI();
+        uiLives = new UIElement("Lives", player.Lives, 2, 1);
+        gameUI.AddUIElement(uiLives);
+        uiTime = new UIElement("Time", 0, 15, 1);
+        gameUI.AddUIElement(uiTime);
+        uiScore = new UIElement("Score", score, 25, 1);
+        gameUI.AddUIElement(uiScore);
+        uiLevel = new UIElement("Level", level.currentLevel, 40, 1);
+        gameUI.AddUIElement(uiLevel);
+
+        uiExit = new UIElement("exit", 2, 2);
+        gameUI.AddUIElement(uiExit);
+
+        while (isResettingObjects)
+        {
+            if (level.currentLevel >= 1)
+            {
+                if (zombies.Count > 2)
+                {
+                    zombies.RemoveAt(2);
+                }
+                else
+                {
+                    isResettingObjects = false;
+                }
+            }
+        }
+
+        if (level.currentLevel == 1)
+        {
+            powerupSpawns.Clear();
+            Powerup medKit = new Powerup(PowerupType.MedKit, 5, 7, '+');
+            powerupSpawns.Add(medKit);
+        }
     }
 }
