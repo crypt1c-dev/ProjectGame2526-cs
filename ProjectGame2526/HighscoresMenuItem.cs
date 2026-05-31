@@ -9,11 +9,6 @@ public class HighscoresMenuItem : MenuItem
 
     }
 
-    public void LoadHighScores()
-    {
-        
-    }
-
     public override void Activate(Game game)
     {
         game.CurrentGameState = GameState.HighscoresMenu;

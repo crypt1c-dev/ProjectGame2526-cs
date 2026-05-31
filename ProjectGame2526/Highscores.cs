@@ -37,7 +37,7 @@ public class Highscores
         LevelNum = newLevelNum;  
     }
 
-    public static void SaveHighScore(Highscores newHighscore)
+    public void SaveHighScore(Highscores newHighscore)
     {
         string highscoreAsText =
     $"{newHighscore.PlayerName}:{newHighscore.Score}:{newHighscore.LevelNum}";

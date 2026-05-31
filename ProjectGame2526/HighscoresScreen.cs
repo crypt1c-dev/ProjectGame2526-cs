@@ -6,7 +6,7 @@ namespace ProjectGame2526;
 
 public class HighscoresScreen : Screen
 {
-    int scrollOffset = 0;
+    protected int scrollOffset = 0;
     public HighscoresScreen() : base("HighscoresMenu.txt", ConsoleColor.Green, ConsoleColor.Black)
     {
 

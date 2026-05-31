@@ -8,25 +8,14 @@ namespace ProjectGame2526;
 public class Player : Entity
 {
     protected bool isInvincible = false;
-    protected bool canJump = false;
-    public bool dead = false;
     protected ConsoleColor color = ConsoleColor.Red;
     protected Level gameLevel;
-
     protected int defaultPlayerLives = 3;
-    int x, y;
-    private int width;
-    private int height;
     protected Stopwatch time;
     public bool IsInvincible
     {
         get { return isInvincible; }
         set { isInvincible = value; }
-    }
-    public bool CanJump
-    {
-        get { return canJump; }
-        set { canJump = value; }
     }
     public int DefaultPlayerLives
     {
@@ -35,25 +24,15 @@ public class Player : Entity
     }
     public Player() : base(1, 1, '@', 3, 1, 1)
     {
-        x = 1;
-        y = 1;
         lives = 3;
         isInvincible = false;
-        canJump = false;
     }
     public Player(int newX, int newY, char newSymbol, int newLives, int newSpeed, bool newIsInvincible, bool newCanJump, int gameWidth, int gameHeight, Level level) : base(newX, newY, newSymbol, newLives, 1, 1, gameWidth, gameHeight)
     {
-        x = newX;
-        y = newY;
-
         gameLevel = level;
 
         lives = newLives;
         isInvincible = newIsInvincible;
-        canJump = newCanJump;
-
-        width = gameWidth;
-        height = gameHeight;
 
         time = new Stopwatch();
 

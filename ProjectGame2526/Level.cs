@@ -7,12 +7,12 @@ namespace ProjectGame2526;
 
 public class Level
 {
-    int playerLives;
+    protected int playerLives;
     public int currentLevel = 1;
-    int height;
-    int width;
-    int newXOffset;
-    int newYOffset;
+    protected int height;
+    protected int width;
+    protected int newXOffset;
+    protected int newYOffset;
     protected LevelElement[,] level;
 
 

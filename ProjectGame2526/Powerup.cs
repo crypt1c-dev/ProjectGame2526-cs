@@ -12,9 +12,9 @@ public enum PowerupType
 
 public class Powerup : Sprite
 {
-    PowerupType type;
+    protected PowerupType type;
     public Powerup() : base(0, 0, '?')
-    {
+    
     }
 
     public Powerup(PowerupType newType, int newX, int newY, char newSymbol) : base(newX, newY, newSymbol)

@@ -31,7 +31,6 @@ public class Game
  */
     protected bool gameFirstStart = true;
     protected int width, height;
-    protected int playerPosX = 5, playerPosY = 5;
     protected double refreshRate;
     protected int uiXOffset = 3;
     protected int uiYOffset = 5;
@@ -39,7 +38,7 @@ public class Game
     protected string playerName;
 
     protected double timeSinceHit = 10000000;
-    const double hitInvincibleTime = 0.5;
+    protected const double hitInvincibleTime = 0.5;
     /**
  *       ___  _     _           _       
  *      / _ \| |__ (_) ___  ___| |_ ___ 

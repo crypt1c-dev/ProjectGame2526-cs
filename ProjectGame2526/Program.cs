@@ -10,11 +10,6 @@ public class Program
         // create the game
         Game game = new Game(60, 20);
 
-        StreamWriter writer = new StreamWriter("test.txt");
-        writer.WriteLine("New game started at");
-        writer.WriteLine("Level is starting...");
-        writer.Close();
-
         // start the game loop
         RunGameLoop(game);
     }
@@ -50,23 +45,4 @@ public class Program
             game.Draw(refreshRate);
         }
     }
-
-    // protected static void Reset(Game game)
-    // {
-    //     Console.BackgroundColor = ConsoleColor.Black;
-    //     Console.ForegroundColor = ConsoleColor.Black;
-    //     int uiXOffset = game.GetXOffset();
-    //     int uiYOffset = game.GetYOffset();
-
-    //     Console.SetCursorPosition(uiXOffset, uiYOffset);
-    //     for (int y = uiYOffset; y < game.GetHeight() + uiYOffset; ++y)
-    //     {
-    //         for (int x = uiXOffset; x < game.GetWidth() + uiXOffset; ++x)
-    //         {
-    //             Console.Write(" ");
-    //         }
-    //         Console.WriteLine();
-    //     }
-    //     Console.SetCursorPosition(0, 0);
-    // }
 }
