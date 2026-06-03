@@ -402,6 +402,12 @@ public class Game
                     player.Lives = 0;
                     player.CheckDeath(this);
                 }
+                if(key == ConsoleKey.Home)
+                {
+                    score += 10000;
+                    level.SetCurrentLevel(10);
+                    NextLevel();
+                }
                 if (key == ConsoleKey.Escape)
                 {
                     FullScreenReset();
@@ -639,6 +645,7 @@ public class Game
 
         playerName = highscoreSaveScreen.GetPlayerName();
 
+        // remove whitespace from the beginning and end of the name
         playerName = playerName.Trim();
 
         // zoek of de naam al bestaat
