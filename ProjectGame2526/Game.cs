@@ -654,7 +654,7 @@ public class Game
             level.currentLevel = 10;
         }
 
-        // als de naam nog niet bestaat
+        // if the name doesn't exist, add a new highscore with the current name, score and level
         if (existingHighscore == null)
         {
             highscoresList.Add(

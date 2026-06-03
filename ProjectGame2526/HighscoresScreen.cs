@@ -21,10 +21,10 @@ public class HighscoresScreen : Screen
         {
             reader = new StreamReader("Highscores.json");
 
-            // lees volledige file
+            // Reads the entire file and stores it as a string
             highscoresAsText = reader.ReadToEnd();
 
-            // zet json om naar lijst van highscores
+            // converts the JSON string into a list of Highscores objects
             List<Highscores> highscores =
                 JsonSerializer.Deserialize<List<Highscores>>(highscoresAsText);
 
@@ -33,6 +33,12 @@ public class HighscoresScreen : Screen
         catch (FileNotFoundException)
         {
             Console.WriteLine("Highscores file not found.");
+
+            return new List<Highscores>();
+        }
+        catch(NullReferenceException)
+        {
+            Console.WriteLine("Highscores file is empty or corrupted.");
 
             return new List<Highscores>();
         }

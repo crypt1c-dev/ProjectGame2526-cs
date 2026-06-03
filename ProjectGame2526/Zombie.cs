@@ -34,12 +34,6 @@ public class Zombie : Entity
         base.Draw(uiXOffset, uiYOffset);
         Console.ForegroundColor = originalColor;
     }
-    // public void Spawn(out int x, out int y)
-    // {
-    //     Random rand = new Random();
-    //     x = rand.Next(width - 1, 80);
-    //     y = rand.Next(0, 25);
-    // }
 
 
     public override void Update(double dt)
@@ -49,7 +43,8 @@ public class Zombie : Entity
         base.Update(dt);
 
         //after move check
-        if (gameLevel.GetElementTypeAt(CursorY, CursorX) == LevelElementType.Wall || gameLevel.GetElementTypeAt(CursorY, CursorX) == LevelElementType.BreakableWall)
+        if (gameLevel.GetElementTypeAt(CursorY, CursorX) == LevelElementType.Wall 
+        || gameLevel.GetElementTypeAt(CursorY, CursorX) == LevelElementType.BreakableWall)
         {
             //reset position to before update
             xPos = previousPositionX;

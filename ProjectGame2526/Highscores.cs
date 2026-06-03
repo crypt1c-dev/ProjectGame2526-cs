@@ -34,7 +34,7 @@ public class Highscores
     {
         Score = newScore;
         PlayerName = newPlayerName;
-        LevelNum = newLevelNum;  
+        LevelNum = newLevelNum;
     }
 
     public void SaveHighScore(Highscores newHighscore)
@@ -52,10 +52,7 @@ public class Highscores
         }
         catch (Exception e)
         {
-            Console.WriteLine(
-                "Error while saving highscore: {0}",
-                e.Message
-            );
+            Console.WriteLine("Error while saving highscore: {0}", e.Message);
         }
         finally
         {

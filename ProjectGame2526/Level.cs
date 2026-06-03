@@ -35,9 +35,6 @@ public class Level
 
         level = new LevelElement[width, height];
 
-        int length1 = level.GetLength(0);
-        int length2 = level.GetLength(1);
-
         for (int row = 0; row < level.GetLength(1); row++)
         {
             for (int col = 0; col < level.GetLength(0); col++)
@@ -50,13 +47,13 @@ public class Level
                 {
                     // small stroke of walls at row 3
                     if (row == 3 && col > 23 && col < 32
-                   || row == 17 && col > 43 && col < 55
-                   || col == 54 && row > 10 && row <= 17
-                   || row == 14 && col == 12
-                   || row == 13 && col == 13
-                   || row == 12 && col == 14
-                   || row == 11 && col == 15
-                   || row == 10 && col == 16)
+                    || row == 17 && col > 43 && col < 55
+                    || col == 54 && row > 10 && row <= 17
+                    || row == 14 && col == 12
+                    || row == 13 && col == 13
+                    || row == 12 && col == 14
+                    || row == 11 && col == 15
+                    || row == 10 && col == 16)
                     {
                         level[col, row] = new LevelElement(LevelElementType.Wall);
                     }
@@ -71,12 +68,12 @@ public class Level
                     if (row == 3 && col > 23 && col < 32
                     || row > 4 && row < 10 && col == 11
                     || row == 17 && col > 43 && col < 55
-                   || col == 54 && row > 10 && row <= 17
-                   || row == 14 && col == 12
-                   || row == 13 && col == 13
-                   || row == 12 && col == 14
-                   || row == 11 && col == 15
-                   || row == 10 && col == 16)
+                    || col == 54 && row > 10 && row <= 17
+                    || row == 14 && col == 12
+                    || row == 13 && col == 13
+                    || row == 12 && col == 14
+                    || row == 11 && col == 15
+                    || row == 10 && col == 16)
                     {
                         level[col, row] = new LevelElement(LevelElementType.Wall);
                     }
@@ -172,13 +169,12 @@ public class Level
                 }
                 else if (currentLevelNumber == 8)
                 {
-                    if (
-        row == 4 && col > 18 && col < 39
-        || row == 5 && col > 19 && col < 38
-        || row == 6 && col > 21 && col < 36
-        || row == 7 && col > 23 && col < 34
-        || row == 8 && col > 25 && col < 32
-        || col > 32 && col < 37 && row >= 1 && row < 17)
+                    if (row == 4 && col > 18 && col < 39
+                    || row == 5 && col > 19 && col < 38
+                    || row == 6 && col > 21 && col < 36
+                    || row == 7 && col > 23 && col < 34
+                    || row == 8 && col > 25 && col < 32
+                    || col > 32 && col < 37 && row >= 1 && row < 17)
                     {
                         level[col, row] = new LevelElement(LevelElementType.Wall);
                     }
@@ -293,6 +289,11 @@ public class Level
                         level[col, row] = new LevelElement(LevelElementType.Empty);
                     }
                 }
+                else
+                {
+                    // if its out of bounds, just ignore it and move on to the next position
+                    continue;
+                }
             }
         }
     }
@@ -304,21 +305,21 @@ public class Level
             while (GetElementTypeAt(powerup.CursorY, powerup.CursorX) == LevelElementType.Wall
             || GetElementTypeAt(powerup.CursorY, powerup.CursorX) == LevelElementType.BreakableWall)
             {
-                if(powerup.XPos + 1 < width - 1)
+                if (powerup.XPos + 1 < width - 1)
                 {
-                powerup.XPos++;
+                    powerup.XPos++;
                 }
-                else if(powerup.YPos + 1 < height - 1)
+                else if (powerup.YPos + 1 < height - 1)
                 {
-                powerup.YPos++;
+                    powerup.YPos++;
                 }
                 else
                 {
-                    if(powerup.XPos - 1 > 0)
+                    if (powerup.XPos - 1 > 0)
                     {
                         powerup.XPos--;
                     }
-                    else if(powerup.YPos - 1 > 0)
+                    else if (powerup.YPos - 1 > 0)
                     {
                         powerup.YPos--;
                     }

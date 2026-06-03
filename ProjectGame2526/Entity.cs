@@ -15,13 +15,6 @@ public class Entity : Sprite
         set { lives = value; }
     }
 
-
-    // public virtual void Move(int x, int y)
-    // {
-    //     xPos += (int)(x * speed);
-    //     yPos += (int)(y * speed);
-    // }
-
     public Entity() : base(1, 1, '?')
     {
         lives = 3;

@@ -91,10 +91,6 @@ public class Player : Entity
         // debug
         Console.SetCursorPosition(0, 25);
 
-        Console.Write(
-            gameLevel.GetElementTypeAt((int)yPos, (int)xPos)
-        );
-
         // collision
         if (gameLevel.GetElementTypeAt((int)yPos, (int)xPos)
             == LevelElementType.Wall && !isInvincible || gameLevel.GetElementTypeAt((int)yPos, (int)xPos)

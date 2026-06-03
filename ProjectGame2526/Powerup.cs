@@ -14,7 +14,8 @@ public class Powerup : Sprite
 {
     protected PowerupType type;
     public Powerup() : base(0, 0, '?')
-    
+    {
+        
     }
 
     public Powerup(PowerupType newType, int newX, int newY, char newSymbol) : base(newX, newY, newSymbol)

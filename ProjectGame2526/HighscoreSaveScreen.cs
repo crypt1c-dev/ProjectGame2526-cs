@@ -16,7 +16,6 @@ public class HighscoreSaveScreen : Screen
     {
         base.Draw();
 
-        // Here you would add code to save the player's name and score to a file or database
         HandleNameInput(game);
     }
 
