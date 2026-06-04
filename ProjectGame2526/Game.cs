@@ -685,6 +685,11 @@ public class Game
         bool isResettingObjects = true;
 
         player.Lives = player.DefaultPlayerLives;
+        player.IsInvincible = false;
+        player.GoInvincible();
+        player.Time.Stop();
+        player.Time.Reset();
+
         level.SetCurrentLevel(1);
         score = 0;
 
@@ -706,6 +711,12 @@ public class Game
 
         uiExit = new UIElement("exit", 2, 2);
         gameUI.AddUIElement(uiExit);
+
+        player.SetLevel(level);
+        foreach(Zombie zombie in zombies)
+        {
+            zombie.SetLevel(level);
+        }
 
         while (isResettingObjects)
         {

@@ -22,6 +22,11 @@ public class Player : Entity
         get { return defaultPlayerLives; }
         set { defaultPlayerLives = value; }
     }
+    public Stopwatch Time
+    {
+        get { return time; }
+        set { time = value; }
+    }
     public Player() : base(1, 1, '@', 3, 1, 1)
     {
         lives = 3;
